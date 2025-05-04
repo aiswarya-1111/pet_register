@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pet_register/entity/pet_detail_entity.dart';
 import 'package:pet_register/screens/register_pet_form_screen/cubit/register_pet_form_screen_cubit.dart';
 import 'package:pet_register/screens/register_pet_form_screen/register_pet_form_screen.dart';
@@ -10,8 +12,6 @@ import 'package:pet_register/utils/string_resource.dart';
 import 'package:pet_register/widget/custom_button.dart';
 import 'package:pet_register/widget/custom_scaffold.dart';
 import 'package:pet_register/widget/custom_text.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RegisteredPetFeedScreen extends StatelessWidget {
   const RegisteredPetFeedScreen({super.key});
@@ -258,8 +258,8 @@ class _PetImageWithGender extends StatelessWidget {
   );
 
   Widget _likeIcon() => Positioned(
-    top: 5,
-    right: 5,
+    top: 14,
+    right: 14,
     child: CircleAvatar(
       radius: 18,
       backgroundColor: ColorResource.colorF0F0F0,
