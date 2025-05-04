@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:cat_register/repository/pet_repository.dart';
-import 'package:cat_register/screens/register_pet_form_screen/cubit/resgister_pet_form_screen.state.dart';
-import 'package:cat_register/utils/base_cubit.dart';
-import 'package:cat_register/utils/string_resource.dart';
+import 'package:pet_register/repository/pet_repository.dart';
+import 'package:pet_register/screens/register_pet_form_screen/cubit/resgister_pet_form_screen.state.dart';
+import 'package:pet_register/utils/base_cubit.dart';
+import 'package:pet_register/utils/string_resource.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 
@@ -12,77 +12,100 @@ class RegisterPetFormScreenCubit extends BaseCubit<RegisterPetFormScreenState> {
   final ownerNameController = TextEditingController();
   final locationController = TextEditingController();
   final notesController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+
   String? petType;
   String? gender;
   File? imageFile;
 
   RegisterPetFormScreenCubit() : super(RegisterPetFormScreenInitState());
 
-  Future<void> addPetDetail() async {
+  Future<void> submitPetDetails() async {
     emit(RegisterPetFormScreenLoadingState());
 
-    final validationError = validateFields();
-    if (validationError != null) {
-      emit(RegisterPetFormScreenErrorState(errorMessage: ""));
-      return;
-    }
+    try {
+      final isValid = formKey.currentState?.validate() ?? false;
+      final customError = validateFields();
 
-    final response = await PetRepository.registerPet(
-      petName: petNameController.text,
-      userName: ownerNameController.text,
-      petType: petType!,
-      gender: gender!,
-      location: locationController.text,
-      imageFile: imageFile!,
-    );
+      if (!isValid || customError != null) {
+        if (customError != null) {
+          emit(RegisterPetFormScreenErrorState(errorMessage: customError));
+        }
+        return;
+      }
 
-    if (response.status != 200) {
+      final response = await PetRepository.registerPet(
+        petName: petNameController.text,
+        userName: ownerNameController.text,
+        petType: petType!,
+        gender: gender!,
+        location: locationController.text,
+        imageFile: imageFile!,
+      );
+
+      if (response.status != 200) {
+        emit(
+          RegisterPetFormScreenErrorState(
+            errorMessage: response.error ?? StringResource.somethingWentWrong,
+          ),
+        );
+        return;
+      }
+
+      emit(RegisterPetFormScreenSuccessState());
+    } catch (e) {
       emit(
         RegisterPetFormScreenErrorState(
-          errorMessage: response.error ?? StringResource.somethingWentWrong,
+          errorMessage: StringResource.somethingWentWrong,
         ),
       );
     }
-    emit(
-      RegisterPetFormScreenLoadedState(
-        successMessage: response.message ?? "Pet detail added!",
-      ),
-    );
   }
 
   String? validateFields() {
-    if (petNameController.text.trim().isEmpty) return "Pet name is required.";
-    if (ownerNameController.text.trim().isEmpty) {
-      return "Owner name is required.";
-    }
-    if (petType == null || petType!.isEmpty) return "Pet type is required.";
-    if (gender == null || gender!.isEmpty) return "Gender is required.";
-    if (locationController.text.trim().isEmpty) return "Location is required.";
+    if ((petType ?? "").isEmpty) return "Pet type is required.";
+    if ((gender ?? "").isEmpty) return "Gender is required.";
     if (imageFile == null) return "Pet image is required.";
-
     return null;
   }
 
   Future<void> pickImage() async {
-    final pickedFile = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ["jpeg", "png", "jpg"],
-      withReadStream: true,
-    );
+    try {
+      final pickedFile = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ["jpeg", "png", "jpg"],
+        withReadStream: true,
+      );
 
-    if (pickedFile == null || pickedFile.files.isEmpty) {
-      return emit(RegisterPetFormRefreshState());
+      if (pickedFile == null || pickedFile.files.isEmpty) {
+        emit(RegisterPetFormRefreshState());
+        return;
+      }
+
+      final PlatformFile platformFile = pickedFile.files.first;
+      imageFile = File(platformFile.path!);
+
+      emit(RegisterPetFormScreenLoadedState(successMessage: "Image Uploaded"));
+    } catch (e) {
+      emit(
+        RegisterPetFormScreenErrorState(errorMessage: "Failed to pick image."),
+      );
     }
-
-    final PlatformFile platformFile = pickedFile.files.first;
-    imageFile = File(platformFile.path!);
-
-    emit(RegisterPetFormScreenLoadedState(successMessage: "Image Uploaded"));
   }
 
   void removeImage() {
     imageFile = null;
     emit(RegisterPetFormScreenLoadedState(successMessage: "Image Removed"));
+  }
+
+  void onSelectPetType(String selectType) {
+    petType = selectType;
+    emit(RegisterPetFormRefreshState());
+  }
+
+  void onSelectPetGender(String selectGender) {
+    gender = selectGender;
+    emit(RegisterPetFormRefreshState());
   }
 
   @override

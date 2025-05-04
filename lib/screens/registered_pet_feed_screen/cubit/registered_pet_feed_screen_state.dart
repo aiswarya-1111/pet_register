@@ -1,5 +1,5 @@
-import 'package:cat_register/entity/pet_detail_entity.dart';
-import 'package:cat_register/utils/equatable.dart';
+import 'package:pet_register/entity/pet_detail_entity.dart';
+import 'package:pet_register/utils/equatable.dart';
 
 class RegisteredPetFeedScreenState extends BaseEquatable {}
 

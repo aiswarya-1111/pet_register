@@ -1,5 +1,5 @@
-import 'package:cat_register/entity/pet_detail_entity.dart';
-import 'package:cat_register/http/response/generic_response.dart';
+import 'package:pet_register/entity/pet_detail_entity.dart';
+import 'package:pet_register/http/response/generic_response.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'get_pet_list_reponse.g.dart';

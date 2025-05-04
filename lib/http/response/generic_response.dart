@@ -1,4 +1,4 @@
-import 'package:cat_register/http/response/base_response.dart';
+import 'package:pet_register/http/response/base_response.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'generic_response.g.dart';
 

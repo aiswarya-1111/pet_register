@@ -1,16 +1,25 @@
-# cat_register
+# 🐾 My Flutter Pet App
 
-A new Flutter project.
+A Flutter application that allows users to view and manage registered pets. It includes a scrollable pet list, add-new functionality, and responsive layouts.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Features
 
-A few resources to get you started if this is your first Flutter project:
+- 🐶 Display registered pet profiles in a 2-column responsive grid
+- 🔄 Pull-to-refresh
+- ➕ Add new pet feature
+- 🧹 Clean UI with empty/loading states
+- 📱 Fully responsive for mobile devices
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🛠️ Tech Stack
+
+- Flutter 3.x
+- Dart
+- BLoC for state management
+- Custom Widgets
+- Material Design
+
+---

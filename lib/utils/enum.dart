@@ -1,5 +1,5 @@
-import 'package:cat_register/utils/color_resource.dart';
-import 'package:cat_register/utils/image_constant.dart';
+import 'package:pet_register/utils/color_resource.dart';
+import 'package:pet_register/utils/image_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 

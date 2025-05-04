@@ -2,15 +2,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EchoCubitDelegate extends BlocObserver {
   @override
-  void onChange(BlocBase cubit, Change change) {
-    super.onChange(cubit, change);
+  void onChange(BlocBase bloc, Change change) {
+    super.onChange(bloc, change);
     // ignore: avoid_print
     if (DebugMode.isInDebugMode) print(change);
   }
 
   @override
-  void onError(BlocBase bloc, Object error, StackTrace stacktrace) {
-    super.onError(bloc, error, stacktrace);
+  void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
+    super.onError(bloc, error, stackTrace);
     // ignore: avoid_print
     if (DebugMode.isInDebugMode) print(error);
   }

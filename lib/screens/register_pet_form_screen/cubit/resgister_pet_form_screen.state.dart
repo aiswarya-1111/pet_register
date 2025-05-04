@@ -1,4 +1,4 @@
-import 'package:cat_register/utils/equatable.dart';
+import 'package:pet_register/utils/equatable.dart';
 
 class RegisterPetFormScreenState extends BaseEquatable {}
 
@@ -11,6 +11,8 @@ class RegisterPetFormScreenLoadingState extends RegisterPetFormScreenState {
 
 class RegisterPetFormScreenLoadedState extends RegisterPetFormScreenState {
   final String successMessage;
+  @override
+  bool operator ==(Object other) => false;
   RegisterPetFormScreenLoadedState({required this.successMessage});
 }
 
@@ -24,4 +26,4 @@ class RegisterPetFormRefreshState extends RegisterPetFormScreenState {
   bool operator ==(Object other) => false;
 }
 
-class RegisterPetFormScreenSuccessState extends RegisterPetFormScreenState{}
+class RegisterPetFormScreenSuccessState extends RegisterPetFormScreenState {}

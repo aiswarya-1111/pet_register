@@ -1,5 +1,5 @@
-import 'package:cat_register/utils/color_resource.dart';
-import 'package:cat_register/widget/custom_text.dart';
+import 'package:pet_register/utils/color_resource.dart';
+import 'package:pet_register/widget/custom_text.dart';
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
@@ -28,6 +28,7 @@ class CustomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
+      height: 50,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,

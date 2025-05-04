@@ -1,15 +1,15 @@
-import 'package:cat_register/entity/pet_detail_entity.dart';
-import 'package:cat_register/screens/register_pet_form_screen/cubit/register_pet_form_screen_cubit.dart';
-import 'package:cat_register/screens/register_pet_form_screen/register_pet_form_screen.dart';
-import 'package:cat_register/screens/registered_pet_feed_screen/cubit/registered_pet_feed_screen_cubit.dart';
-import 'package:cat_register/screens/registered_pet_feed_screen/cubit/registered_pet_feed_screen_state.dart';
-import 'package:cat_register/utils/color_resource.dart';
-import 'package:cat_register/utils/enum.dart';
-import 'package:cat_register/utils/image_constant.dart';
-import 'package:cat_register/utils/string_resource.dart';
-import 'package:cat_register/widget/custom_button.dart';
-import 'package:cat_register/widget/custom_scaffold.dart';
-import 'package:cat_register/widget/custom_text.dart';
+import 'package:pet_register/entity/pet_detail_entity.dart';
+import 'package:pet_register/screens/register_pet_form_screen/cubit/register_pet_form_screen_cubit.dart';
+import 'package:pet_register/screens/register_pet_form_screen/register_pet_form_screen.dart';
+import 'package:pet_register/screens/registered_pet_feed_screen/cubit/registered_pet_feed_screen_cubit.dart';
+import 'package:pet_register/screens/registered_pet_feed_screen/cubit/registered_pet_feed_screen_state.dart';
+import 'package:pet_register/utils/color_resource.dart';
+import 'package:pet_register/utils/enum.dart';
+import 'package:pet_register/utils/image_constant.dart';
+import 'package:pet_register/utils/string_resource.dart';
+import 'package:pet_register/widget/custom_button.dart';
+import 'package:pet_register/widget/custom_scaffold.dart';
+import 'package:pet_register/widget/custom_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,32 +18,50 @@ class RegisteredPetFeedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<RegisteredPetFeedScreenCubit>();
     return CustomScaffold(
-      backgroundColor: Colors.white,
-      body: BlocBuilder<
+      body: BlocConsumer<
         RegisteredPetFeedScreenCubit,
         RegisteredPetFeedScreenState
       >(
+        listener: (context, state) {
+          if (state is RegisteredPetFeedScreenErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: CustomText(
+                  state.errorMessage,
+                  color: ColorResource.colorFFFFFF,
+                ),
+              ),
+            );
+          }
+        },
         builder: (context, state) {
           final isLoading = state is RegisteredPetFeedScreenLoadingState;
           final List<PetDetailEntity> petList =
               state is RegisteredPetFeedScreenLoadedState ? state.petList : [];
 
-          return Stack(
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (petList.isEmpty && isLoading)
-                    _PetFormEmptyState()
-                  else if (!isLoading)
-                    _PetFormList(petList: petList),
-                  _AddNewPetButton(),
-                  const SizedBox(height: 24),
-                ],
-              ),
-              if (isLoading) const Center(child: CircularProgressIndicator()),
-            ],
+          return RefreshIndicator(
+            onRefresh: () => cubit.init(),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 29, 20, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (petList.isEmpty || isLoading)
+                        _PetFormEmptyState()
+                      else
+                        _PetFormList(petList: petList),
+                      _AddNewPetButton(),
+                    ],
+                  ),
+                ),
+
+                if (isLoading) const Center(child: CircularProgressIndicator()),
+              ],
+            ),
           );
         },
       ),
@@ -57,20 +75,28 @@ class _PetFormList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Calculate item width to fit 2 columns with spacing
+    final double itemWidth = (screenWidth - 20 * 2 - 14) / 2;
+
     return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 29, 20, 10),
-        child: GridView.builder(
-          itemCount: petList.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 20,
-            crossAxisSpacing: 14,
-            childAspectRatio: 171 / 162,
-          ),
-          itemBuilder: (context, index) {
-            return _PetProfileCard(petDetail: petList[index]);
-          },
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Wrap(
+              spacing: 14,
+              runSpacing: 20,
+              children:
+                  petList.map((pet) {
+                    return SizedBox(
+                      width: itemWidth,
+                      child: _PetProfileCard(petDetail: pet),
+                    );
+                  }).toList(),
+            ),
+            SizedBox(height: 10),
+          ],
         ),
       ),
     );
@@ -80,29 +106,23 @@ class _PetFormList extends StatelessWidget {
 class _AddNewPetButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: SizedBox(
-        width: double.infinity,
-        child: CustomButton(
-          label: StringResource.addNewPet,
-          textFontSize: 18,
-          textFontWeight: FontWeight.w500,
-          icon: Icon(Icons.add_box, color: ColorResource.color000000, size: 30),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => BlocProvider(
-                      create: (context) => RegisterPetFormScreenCubit(),
-                      child: RegisterPetFormScreen(),
-                    ),
-              ),
-            );
-          },
-        ),
-      ),
+    return CustomButton(
+      label: StringResource.addNewPet,
+      textFontSize: 18,
+      textFontWeight: FontWeight.w500,
+      icon: Icon(Icons.add_box, color: ColorResource.color000000, size: 30),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => BlocProvider(
+                  create: (context) => RegisterPetFormScreenCubit(),
+                  child: RegisterPetFormScreen(),
+                ),
+          ),
+        );
+      },
     );
   }
 }
@@ -120,6 +140,7 @@ class _PetProfileCard extends StatelessWidget {
         border: Border.all(color: ColorResource.colorE8E8E8),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _PetImageWithGender(petDetail: petDetail),
@@ -127,6 +148,7 @@ class _PetProfileCard extends StatelessWidget {
           _buildPetName(),
           const SizedBox(height: 9),
           _buildPetLocation(),
+          const SizedBox(height: 9),
         ],
       ),
     );
@@ -157,6 +179,7 @@ class _PetProfileCard extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w400,
               maxLines: 1,
+              color: ColorResource.color5C5E5D,
               textOverflow: TextOverflow.ellipsis,
             ),
           ),
@@ -220,17 +243,17 @@ class _PetImageWithGender extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.only(topLeft: Radius.circular(23)),
       ),
-      child: SizedBox(width: 39, height: 37),
+      child: SizedBox(width: 37, height: 35),
     ),
   );
 
   Widget _genderBadge(PetGenderEnum genderType) => Positioned(
-    bottom: 3,
+    bottom: 2,
     right: 3,
     child: CircleAvatar(
-      radius: 12.5,
+      radius: 14,
       backgroundColor: genderType.bgColor,
-      child: Image.asset(genderType.image),
+      child: Image.asset(genderType.image, alignment: Alignment.bottomCenter),
     ),
   );
 

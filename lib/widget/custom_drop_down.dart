@@ -1,5 +1,5 @@
-import 'package:cat_register/utils/color_resource.dart';
-import 'package:cat_register/widget/custom_text.dart';
+import 'package:pet_register/utils/color_resource.dart';
+import 'package:pet_register/widget/custom_text.dart';
 import 'package:flutter/material.dart';
 
 class CustomDropDownWidget<T> extends StatelessWidget {

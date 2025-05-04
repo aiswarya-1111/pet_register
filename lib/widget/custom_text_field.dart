@@ -1,6 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api
 
-import 'package:cat_register/utils/color_resource.dart';
+import 'package:pet_register/utils/color_resource.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -18,7 +18,6 @@ class CustomTextField extends StatefulWidget {
   final FontWeight inputFontWeight;
   final bool obscureText;
   final TextAlign textAlign;
-
   final Color? fillColor;
 
   final double? height;
@@ -53,6 +52,7 @@ class CustomTextField extends StatefulWidget {
   final ValueChanged<String>? onSubmitted;
   final String font;
   final EdgeInsets scrollPadding;
+  final String? validatorMessage;
 
   const CustomTextField({
     this.controller,
@@ -92,6 +92,7 @@ class CustomTextField extends StatefulWidget {
     this.maxLength,
     this.focusNode,
     this.onSubmitted,
+    this.validatorMessage = "Required",
     this.textAlign = TextAlign.start,
     this.font = "Inter",
     this.prefixConstraints = const BoxConstraints(maxHeight: 24, maxWidth: 30),
@@ -163,6 +164,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
             textCapitalization: widget.textCapitalization,
             inputFormatters: widget.inputFormatters,
             cursorColor: ColorResource.color000000,
+            validator:
+                widget.validatorMessage != null
+                    ? (value) {
+                      return value!.trim().isEmpty
+                          ? widget.validatorMessage
+                          : null;
+                    }
+                    : null,
             maxLength: widget.maxLength,
             style: TextStyle(
               fontFamily: widget.font,

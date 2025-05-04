@@ -1,18 +1,18 @@
 import 'dart:io';
 
-import 'package:cat_register/screens/register_pet_form_screen/cubit/register_pet_form_screen_cubit.dart';
-import 'package:cat_register/screens/register_pet_form_screen/cubit/resgister_pet_form_screen.state.dart';
-import 'package:cat_register/screens/registered_pet_feed_screen/cubit/registered_pet_feed_screen_cubit.dart';
-import 'package:cat_register/screens/registered_pet_feed_screen/registered_pet_feed_screen.dart';
-import 'package:cat_register/utils/color_resource.dart';
-import 'package:cat_register/utils/image_constant.dart';
-import 'package:cat_register/utils/string_resource.dart';
-import 'package:cat_register/widget/custom_appbar.dart';
-import 'package:cat_register/widget/custom_button.dart';
-import 'package:cat_register/widget/custom_drop_down.dart';
-import 'package:cat_register/widget/custom_scaffold.dart';
-import 'package:cat_register/widget/custom_text.dart';
-import 'package:cat_register/widget/custom_text_field.dart';
+import 'package:pet_register/screens/register_pet_form_screen/cubit/register_pet_form_screen_cubit.dart';
+import 'package:pet_register/screens/register_pet_form_screen/cubit/resgister_pet_form_screen.state.dart';
+import 'package:pet_register/screens/registered_pet_feed_screen/cubit/registered_pet_feed_screen_cubit.dart';
+import 'package:pet_register/screens/registered_pet_feed_screen/registered_pet_feed_screen.dart';
+import 'package:pet_register/utils/color_resource.dart';
+import 'package:pet_register/utils/image_constant.dart';
+import 'package:pet_register/utils/string_resource.dart';
+import 'package:pet_register/widget/custom_appbar.dart';
+import 'package:pet_register/widget/custom_button.dart';
+import 'package:pet_register/widget/custom_drop_down.dart';
+import 'package:pet_register/widget/custom_scaffold.dart';
+import 'package:pet_register/widget/custom_text.dart';
+import 'package:pet_register/widget/custom_text_field.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,14 +23,8 @@ class RegisterPetFormScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-      backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: Image.asset(ImageConstant.backIcon),
-        ),
+        leading: BackButtonWidget(),
         title: StringResource.addYourPetDetail,
       ),
       body:
@@ -39,9 +33,19 @@ class RegisterPetFormScreen extends StatelessWidget {
               if (state is RegisterPetFormScreenErrorState) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(
+                    content: CustomText(
                       state.errorMessage,
-                      style: TextStyle(color: Colors.white),
+                      color: ColorResource.colorFFFFFF,
+                    ),
+                  ),
+                );
+              }
+              if (state is RegisterPetFormScreenLoadedState) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: CustomText(
+                      state.successMessage,
+                      color: ColorResource.colorFFFFFF,
                     ),
                   ),
                 );
@@ -52,14 +56,16 @@ class RegisterPetFormScreen extends StatelessWidget {
                   MaterialPageRoute(
                     builder:
                         (context) => BlocProvider(
-                          create: (context) => RegisteredPetFeedScreenCubit(),
+                          create:
+                              (context) =>
+                                  RegisteredPetFeedScreenCubit()..init(),
                           child: RegisteredPetFeedScreen(),
                         ),
                   ),
                 );
               }
             },
-            child: PetProfileForm(),
+            child: const PetProfileForm(),
           ),
     );
   }
@@ -71,98 +77,174 @@ class PetProfileForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<RegisterPetFormScreenCubit>();
+
     return BlocBuilder<RegisterPetFormScreenCubit, RegisterPetFormScreenState>(
       builder: (context, state) {
-        return Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildLabel('Your pet name'),
-                    CustomTextField(
-                      hintText: 'enter your pet name',
-                      focusBorder: true,
-                      borderWidth: 1,
-                      borderRadius: 25,
-                      controller: cubit.petNameController,
+        final isLoading = state is RegisterPetFormScreenLoadingState;
+
+        return AbsorbPointer(
+          absorbing: isLoading,
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  const Expanded(child: _PetProfileFormFields()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 20,
                     ),
-                    _buildLabel('Your pet owner name'),
-                    CustomTextField(
-                      hintText: 'enter owner name',
-                      controller: cubit.ownerNameController,
-                      focusBorder: true,
-                      borderWidth: 1,
-                      borderRadius: 25,
+                    child: CustomButton(
+                      label: StringResource.submit,
+                      textFontSize: 18,
+                      textFontWeight: FontWeight.w500,
+                      onPressed: cubit.submitPetDetails,
                     ),
-                    _buildLabel('Type of Pet'),
-                    CustomDropDownWidget<String?>(
-                      items: ['Dog', 'Cat', 'Bird', 'Rabbit', 'Other'],
-                      selectedValue: null,
-                      hintText: "ex. dog",
-                      onChanged: (_) {},
-                      displayName: (val) => val,
-                    ),
-                    _buildLabel('Gender'),
-                    CustomDropDownWidget<String?>(
-                      items: ['Male', 'Female'],
-                      selectedValue: null,
-                      hintText: "ex. dog",
-                      onChanged: (_) {},
-                      displayName: (val) => val,
-                    ),
-                    _buildLabel('Enter pet location'),
-                    CustomTextField(
-                      hintText: 'enter your pet location',
-                      controller: cubit.locationController,
-                      focusBorder: true,
-                      borderWidth: 1,
-                      borderRadius: 25,
-                    ),
-                    _buildLabel('Additional Notes'),
-                    CustomTextField(
-                      hintText: '',
-                      maxLines: 5,
-                      controller: cubit.notesController,
-                      focusBorder: true,
-                      borderWidth: 1,
-                      borderRadius: 10,
-                    ),
-                    SizedBox(height: 30),
-                    UploadPhotosWidget(),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: CustomButton(
-                label: "Submit",
-                textFontSize: 18,
-                textFontWeight: FontWeight.w500,
-                onPressed: () {
-                  cubit.addPetDetail();
-                },
-              ),
-            ),
-          ],
+              if (isLoading) const Center(child: CircularProgressIndicator()),
+            ],
+          ),
         );
       },
     );
   }
+}
 
-  Widget _buildLabel(String text) => Padding(
-    padding: const EdgeInsets.only(top: 16, bottom: 6),
-    child: CustomText(
-      text,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      color: ColorResource.color252525,
-    ),
-  );
+class _PetProfileFormFields extends StatelessWidget {
+  const _PetProfileFormFields();
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<RegisterPetFormScreenCubit>();
+    final selectedPetType = context.select(
+      (RegisterPetFormScreenCubit c) => c.petType,
+    );
+    final selectedPetGender = context.select(
+      (RegisterPetFormScreenCubit c) => c.gender,
+    );
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Form(
+        key: cubit.formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildInputField(
+              label: StringResource.yourPetName,
+              child: _textField(
+                cubit.petNameController,
+                'enter your pet name',
+                validatorMessage: "Required",
+              ),
+            ),
+            _buildInputField(
+              label: StringResource.yourPetOwnerName,
+              child: _textField(
+                cubit.ownerNameController,
+                'enter owner name',
+                validatorMessage: "Required",
+              ),
+            ),
+            _buildInputField(
+              label: 'Type of Pet',
+              child: CustomDropDownWidget<String>(
+                items: ['Dog', 'Cat', 'Bird', 'Rabbit', 'Other'],
+                selectedValue: selectedPetType,
+                hintText: "ex. dog",
+                onChanged: cubit.onSelectPetType,
+                displayName: (val) => val,
+              ),
+            ),
+            _buildInputField(
+              label: 'Gender',
+              child: CustomDropDownWidget<String>(
+                items: ['Male', 'Female'],
+                selectedValue: selectedPetGender,
+                hintText: "ex. male",
+                onChanged: cubit.onSelectPetGender,
+                displayName: (val) => val,
+              ),
+            ),
+            _buildInputField(
+              label: StringResource.enterPetLocation,
+              child: _textField(
+                cubit.locationController,
+                'enter your pet location',
+                validatorMessage: "Required",
+              ),
+            ),
+            _buildInputField(
+              label: StringResource.additionalNotes,
+              child: _textField(
+                cubit.notesController,
+                '',
+                maxLines: 5,
+                radius: 10,
+              ),
+            ),
+            const SizedBox(height: 30),
+            const UploadPhotosWidget(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField({required String label, required Widget child}) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16, bottom: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomText(
+            label,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: ColorResource.color252525,
+          ),
+          SizedBox(height: 13),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _textField(
+    TextEditingController controller,
+    String hint, {
+    int maxLines = 1,
+    String? validatorMessage,
+    double radius = 25,
+  }) {
+    return CustomTextField(
+      controller: controller,
+      hintText: hint,
+      maxLines: maxLines,
+      focusBorder: true,
+      validatorMessage: validatorMessage,
+      borderWidth: 1,
+      borderRadius: radius,
+    );
+  }
+}
+
+class BackButtonWidget extends StatelessWidget {
+  const BackButtonWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20),
+      child: GestureDetector(
+        onTap: () => Navigator.pop(context),
+
+        child: Image.asset(ImageConstant.backIcon),
+      ),
+    );
+  }
 }
 
 class UploadPhotosWidget extends StatelessWidget {
@@ -175,17 +257,17 @@ class UploadPhotosWidget extends StatelessWidget {
       (cubit) => cubit.imageFile,
     );
     return BlocBuilder<RegisterPetFormScreenCubit, RegisterPetFormScreenState>(
-      buildWhen:
-          (prev, curr) =>
-              curr is RegisterPetFormScreenLoadedState ||
-              curr is RegisterPetFormRefreshState,
+      buildWhen: (prev, curr) {
+        return curr is RegisterPetFormScreenLoadedState ||
+            curr is RegisterPetFormRefreshState;
+      },
       builder: (context, state) {
         return Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CustomText(
-              "Add your pet profile picture and upload pet photos",
+              StringResource.petProfileFieldTitle,
               fontWeight: FontWeight.w500,
               textAlign: TextAlign.center,
               fontSize: 14,
@@ -210,7 +292,7 @@ class UploadPhotosWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CustomText(
-                        "Upload Photos",
+                        StringResource.uploadPhotos,
                         color: ColorResource.color494FDD,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -227,9 +309,9 @@ class UploadPhotosWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 33),
-            Stack(
-              children: [
-                if (pickedImage != null) ...[
+            if (pickedImage != null) ...[
+              Stack(
+                children: [
                   const SizedBox(height: 12),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(5),
@@ -241,8 +323,8 @@ class UploadPhotosWidget extends StatelessWidget {
                     ),
                   ),
                   Positioned(
-                    top: -8,
-                    right: -8,
+                    top: -14,
+                    right: -14,
                     child: IconButton(
                       icon: const Icon(Icons.remove_circle, color: Colors.red),
                       onPressed: () {
@@ -251,8 +333,8 @@ class UploadPhotosWidget extends StatelessWidget {
                     ),
                   ),
                 ],
-              ],
-            ),
+              ),
+            ],
           ],
         );
       },

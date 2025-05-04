@@ -1,5 +1,5 @@
-import 'package:cat_register/utils/color_resource.dart';
-import 'package:cat_register/widget/custom_text.dart';
+import 'package:pet_register/utils/color_resource.dart';
+import 'package:pet_register/widget/custom_text.dart';
 import 'package:flutter/material.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -19,7 +19,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: ColorResource.colorFFFFFF,
+      surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: centerTitle,
       title: CustomText(

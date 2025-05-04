@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:cat_register/http/dio.dart';
-import 'package:cat_register/http/http.urls.dart';
-import 'package:cat_register/http/response/generic_response.dart';
-import 'package:cat_register/http/response/get_pet_list_reponse.dart';
+import 'package:pet_register/http/dio.dart';
+import 'package:pet_register/http/http.urls.dart';
+import 'package:pet_register/http/response/generic_response.dart';
+import 'package:pet_register/http/response/get_pet_list_reponse.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart' as path;
@@ -19,44 +19,45 @@ class PetRepository {
     required String location,
     required File imageFile,
   }) async {
-    final fileName = path.basename(imageFile.path);
-    final multipartFile = await MultipartFile.fromFile(
-      imageFile.path,
-      filename: fileName,
-      contentType: MediaType("image", "png"),
-    );
+    try {
+      final fileName = path.basename(imageFile.path);
+      final multipartFile = await MultipartFile.fromFile(
+        imageFile.path,
+        filename: fileName,
+        contentType: MediaType("image", "png"),
+      );
 
-    final formData = FormData.fromMap({
-      'pet_name': petName,
-      'user_name': userName,
-      'pet_type': petType,
-      'gender': gender,
-      'location': location,
-      'image': multipartFile,
-    });
+      final formData = FormData.fromMap({
+        'pet_name': petName,
+        'user_name': userName,
+        'pet_type': petType,
+        'gender': gender,
+        'location': location,
+        'image': multipartFile,
+      });
 
-    final response = await dio.post(
-      HttpUrls.registerFormUrl,
-      data: formData,
-      options: Options(contentType: 'multipart/form-data'),
-    );
+      final response = await dio.post(
+        HttpUrls.registerFormUrl,
+        data: formData,
+        options: Options(contentType: 'multipart/form-data'),
+      );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return GenericResponse.fromJson(response.data as Map<String, dynamic>);
-    } else {
-      throw Exception('Failed to register pet: ${response.data}');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return GenericResponse.fromJson(response.data as Map<String, dynamic>);
+      } else {
+        throw Exception('Failed to register pet: ${response.data}');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch pet list');
     }
   }
 
   static Future<GetPetListReponse> fetchPetList() async {
     try {
-      final response = await dio.get(HttpUrls.getPetformUrl); // hypothetical
+      final response = await dio.get(HttpUrls.getPetformUrl);
       return GetPetListReponse.fromJson(response.data as Map<String, dynamic>);
-    } catch (e, stackTrace) {
-      print("Error fetching pet list: $e\n$stackTrace");
-      throw Exception(
-        'Failed to fetch pet list',
-      ); // rethrow or handle more gracefully
+    } catch (e) {
+      throw Exception('Failed to fetch pet list');
     }
   }
 }

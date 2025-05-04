@@ -1,4 +1,4 @@
-import 'package:cat_register/http/http.urls.dart';
+import 'package:pet_register/http/http.urls.dart';
 import 'package:dio/dio.dart';
 
 class DioHelper {

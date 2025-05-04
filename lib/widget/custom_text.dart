@@ -1,4 +1,4 @@
-import 'package:cat_register/utils/color_resource.dart';
+import 'package:pet_register/utils/color_resource.dart';
 import 'package:flutter/material.dart';
 
 class CustomText extends StatelessWidget {

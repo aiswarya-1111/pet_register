@@ -1,6 +1,7 @@
 import 'package:pet_register/utils/enum.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:cat_register/utils/equatable.dart';
+import 'package:pet_register/utils/equatable.dart';
+
 part 'pet_detail_entity.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)

@@ -1,7 +1,7 @@
-import 'package:cat_register/repository/pet_repository.dart';
-import 'package:cat_register/screens/registered_pet_feed_screen/cubit/registered_pet_feed_screen_state.dart';
-import 'package:cat_register/utils/base_cubit.dart';
-import 'package:cat_register/utils/string_resource.dart';
+import 'package:pet_register/repository/pet_repository.dart';
+import 'package:pet_register/screens/registered_pet_feed_screen/cubit/registered_pet_feed_screen_state.dart';
+import 'package:pet_register/utils/base_cubit.dart';
+import 'package:pet_register/utils/string_resource.dart';
 
 class RegisteredPetFeedScreenCubit
     extends BaseCubit<RegisteredPetFeedScreenState> {
@@ -12,15 +12,21 @@ class RegisteredPetFeedScreenCubit
   Future<void> init() async {
     emit(RegisteredPetFeedScreenLoadingState());
 
-    final response = await PetRepository.fetchPetList();
-    if (response.status != 200) {
-      emit(
-        RegisteredPetFeedScreenErrorState(
-          errorMessage: response.error ?? StringResource.somethingWentWrong,
-        ),
-      );
-      return;
+    try {
+      final response = await PetRepository.fetchPetList();
+
+      if (response.status != 200) {
+        emit(
+          RegisteredPetFeedScreenErrorState(
+            errorMessage: response.error ?? StringResource.somethingWentWrong,
+          ),
+        );
+        return;
+      }
+
+      emit(RegisteredPetFeedScreenLoadedState(petList: response.data ?? []));
+    } catch (e) {
+      emit(RegisteredPetFeedScreenErrorState(errorMessage: e.toString()));
     }
-    emit(RegisteredPetFeedScreenLoadedState(petList: response.data ?? []));
   }
 }
